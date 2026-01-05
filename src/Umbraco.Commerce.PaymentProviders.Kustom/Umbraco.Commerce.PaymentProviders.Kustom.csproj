@@ -9,10 +9,6 @@
 
     <ItemGroup>
       <PackageReference Include="Flurl.Http" />
-<!--      <PackageReference Include="Umbraco.Commerce.Core" />-->
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\..\..\..\Umbraco.Commerce.vLatest\src\Umbraco.Commerce.Core\Umbraco.Commerce.Core.csproj" />
+      <PackageReference Include="Umbraco.Commerce.Core" />
     </ItemGroup>
 </Project>
