@@ -1,0 +1,17 @@
+{
+    "name": "Umbraco Commerce Kustom Payment Provider",
+    "$schema": "../umbraco-package-schema.json",
+    "extensions": [
+      {
+        "type": "localization",
+        "alias": "UmbracoCommerce.PaymentProviders.Kustom.Localization.En",
+        "weight": -100,
+        "name": "English",
+        "meta": {
+          "culture": "en"
+        },
+        "js": "/App_Plugins/UmbracoCommerceKustomPaymentProvider/lang/en-us.js"
+      }
+    ],
+    "version": ""
+  }

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+    <PropertyGroup>
+      <Title>Umbraco Commerce Kustom Payment Provider</Title>
+      <Description>Kustom payment provider for Umbraco Commerce</Description>
+      <StaticWebAssetBasePath>App_Plugins/UmbracoCommerceKustomPaymentProvider</StaticWebAssetBasePath>
+      <NoWarn>IDE0290;IDE0058;CA2007;IDE0021;</NoWarn>
+      <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Flurl.Http" />
+<!--      <PackageReference Include="Umbraco.Commerce.Core" />-->
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\Umbraco.Commerce.vLatest\src\Umbraco.Commerce.Core\Umbraco.Commerce.Core.csproj" />
+    </ItemGroup>
+</Project>
