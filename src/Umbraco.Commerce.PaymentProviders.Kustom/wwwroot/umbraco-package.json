@@ -10,7 +10,7 @@
         "meta": {
           "culture": "en"
         },
-        "js": "/App_Plugins/UmbracoCommerceKustomPaymentProvider/lang/en-us.js"
+        "js": "/App_Plugins/UmbracoCommerceKustomPaymentProvider/lang/en.js"
       }
     ],
     "version": ""
