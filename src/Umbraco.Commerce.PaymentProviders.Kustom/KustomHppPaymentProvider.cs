@@ -31,6 +31,7 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom
         public override IEnumerable<TransactionMetaDataDefinition> TransactionMetaDataDefinitions =>
         [
             new("kustomSessionId"),
+            new("kustomCheckoutOrderId"),
             new("kustomOrderId"),
             new("kustomReference"),
         ];
@@ -302,6 +303,7 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom
                 MetaData = new Dictionary<string, string>
                 {
                     { "kustomSessionId", resp2.SessionId },
+                    { "kustomCheckoutOrderId", resp1.OrderId },
                     { "kustomSecretToken", kustomSecretToken }
                 }
             };
@@ -319,33 +321,64 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom
                 var clientConfig = GetKustomClientConfig(ctx.Settings);
                 var client = new KustomClient(clientConfig);
 
+                // Try to parse the session event from the request body
                 using (Stream stream = ctx.HttpContext.Request.Body)
                 {
                     KustomSessionEvent evt = client.ParseSessionEvent(stream);
-                    if (evt != null && evt.Session.Status == KustomSession.Statuses.COMPLETED)
+                    if (evt?.Session?.Status == KustomSession.Statuses.COMPLETED)
                     {
-                        KustomOrder kustomOrder = await client.GetOrderAsync(evt.Session.OrderId, cancellationToken).ConfigureAwait(false);
+                        return await GetCallbackResultFromOrderAsync(client, evt.Session.OrderId, evt.Session.KustomReference, cancellationToken).ConfigureAwait(false);
+                    }
+                }
 
-                        return new CallbackResult
-                        {
-                            TransactionInfo = new TransactionInfo
-                            {
-                                AmountAuthorized = AmountFromMinorUnits(kustomOrder.OriginalOrderAmount),
-                                TransactionFee = 0m,
-                                TransactionId = kustomOrder.OrderId,
-                                PaymentStatus = GetPaymentStatus(kustomOrder)
-                            },
-                            MetaData = new Dictionary<string, string>
-                            {
-                                { "kustomOrderId", evt.Session.OrderId },
-                                { "kustomReference", evt.Session.KustomReference },
-                            },
-                        };
+                // If body was empty or didn't contain a completed session (e.g. retry with empty payload),
+                // fall back to checking the checkout order status via the Kustom API
+                var checkoutOrderId = ctx.Order.Properties["kustomCheckoutOrderId"]?.Value;
+                if (!string.IsNullOrWhiteSpace(checkoutOrderId))
+                {
+                    logger.Info("HPP status callback for order {OrderNumber} had no usable session event, falling back to checkout order API lookup.", ctx.Order.OrderNumber);
+
+                    KustomCheckoutOrder checkoutOrder = await client.GetCheckoutOrderAsync(checkoutOrderId, cancellationToken).ConfigureAwait(false);
+                    if (checkoutOrder?.Status == KustomCheckoutOrder.Statuses.CHECKOUT_COMPLETE)
+                    {
+                        // The checkout order ID is the same as the order management order ID
+                        return await GetCallbackResultFromOrderAsync(client, checkoutOrderId, null, cancellationToken).ConfigureAwait(false);
                     }
                 }
             }
 
             return CallbackResult.Ok();
+        }
+
+        private async Task<CallbackResult> GetCallbackResultFromOrderAsync(KustomClient client, string orderId, string? kustomReference, CancellationToken cancellationToken)
+        {
+            KustomOrder kustomOrder = await client.GetOrderAsync(orderId, cancellationToken).ConfigureAwait(false);
+
+            var metaData = new Dictionary<string, string>
+            {
+                { "kustomOrderId", kustomOrder.OrderId },
+            };
+
+            if (!string.IsNullOrWhiteSpace(kustomReference))
+            {
+                metaData["kustomReference"] = kustomReference;
+            }
+            else if (!string.IsNullOrWhiteSpace(kustomOrder.KustomReference))
+            {
+                metaData["kustomReference"] = kustomOrder.KustomReference;
+            }
+
+            return new CallbackResult
+            {
+                TransactionInfo = new TransactionInfo
+                {
+                    AmountAuthorized = AmountFromMinorUnits(kustomOrder.OriginalOrderAmount),
+                    TransactionFee = 0m,
+                    TransactionId = kustomOrder.OrderId,
+                    PaymentStatus = GetPaymentStatus(kustomOrder)
+                },
+                MetaData = metaData,
+            };
         }
 
         public override async Task<ApiResult> FetchPaymentStatusAsync(PaymentProviderContext<KustomHppSettings> ctx, CancellationToken cancellationToken = default)
