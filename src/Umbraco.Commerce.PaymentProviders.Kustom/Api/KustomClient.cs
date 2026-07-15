@@ -42,6 +42,14 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom.Api
                 cancellationToken).ConfigureAwait(false);
         }
 
+        public async Task<KustomCheckoutOrder> GetCheckoutOrderAsync(string orderId, CancellationToken cancellationToken = default)
+        {
+            return await RequestAsync($"/checkout/v3/orders/{orderId}", async (req, ct) => await req
+                .GetAsync(cancellationToken: ct)
+                .ReceiveJson<KustomCheckoutOrder>().ConfigureAwait(false),
+                cancellationToken).ConfigureAwait(false);
+        }
+
         public async Task<KustomOrder> GetOrderAsync(string orderId, CancellationToken cancellationToken = default)
         {
             return await RequestAsync($"/ordermanagement/v1/orders/{orderId}", async (req, ct) => await req
