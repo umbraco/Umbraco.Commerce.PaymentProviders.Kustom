@@ -465,6 +465,9 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom
                 KustomClientConfig clientConfig = GetKustomClientConfig(context.Settings);
                 KustomClient client = new(clientConfig);
 
+                // Core records the refund after this call, so the refundable amount is still the pre-refund balance
+                var refundableAmount = await context.Order.CalculateRefundableAmountAsync().ConfigureAwait(false);
+
                 await client.RefundOrderAsync(
                     orderId,
                     new KustomRefundOptions
@@ -479,7 +482,9 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom
                     TransactionInfo = new TransactionInfoUpdate
                     {
                         TransactionId = orderId,
-                        PaymentStatus = PaymentStatus.Refunded
+                        PaymentStatus = refundRequest.RefundAmount >= refundableAmount
+                            ? PaymentStatus.Refunded
+                            : PaymentStatus.PartiallyRefunded
                     },
                 };
 
