@@ -474,12 +474,14 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom
                     },
                     cancellationToken).ConfigureAwait(false);
 
+                KustomOrder kustomOrder = await client.GetOrderAsync(orderId, cancellationToken).ConfigureAwait(false);
+
                 return new ApiResult
                 {
                     TransactionInfo = new TransactionInfoUpdate
                     {
                         TransactionId = orderId,
-                        PaymentStatus = PaymentStatus.Refunded
+                        PaymentStatus = GetPaymentStatus(kustomOrder)
                     },
                 };
 
