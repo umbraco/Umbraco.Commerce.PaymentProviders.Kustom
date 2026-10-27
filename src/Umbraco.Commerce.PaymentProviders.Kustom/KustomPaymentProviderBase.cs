@@ -70,7 +70,9 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom
                 case KustomOrder.Statuses.PART_CAPTURED:
                     if (order.RefundedAmount > 0)
                     {
-                        status = PaymentStatus.Refunded;
+                        status = order.RefundedAmount >= order.CapturedAmount
+                            ? PaymentStatus.Refunded
+                            : PaymentStatus.PartiallyRefunded;
                     }
                     else
                     {
