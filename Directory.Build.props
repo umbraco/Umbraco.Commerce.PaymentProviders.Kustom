@@ -33,7 +33,8 @@
   <!-- Package validation -->
   <PropertyGroup>
     <EnablePackageValidation>true</EnablePackageValidation>
-    <PackageValidationBaselineVersion>17.0.0</PackageValidationBaselineVersion>
+    <!-- 17.0.0 was never published to NuGet; 17.0.1 is the first 17.x release there -->
+    <PackageValidationBaselineVersion>17.0.1</PackageValidationBaselineVersion>
     <EnableStrictModeForCompatibleFrameworksInPackage>true</EnableStrictModeForCompatibleFrameworksInPackage>
     <EnableStrictModeForCompatibleTfms>true</EnableStrictModeForCompatibleTfms>
   </PropertyGroup>
