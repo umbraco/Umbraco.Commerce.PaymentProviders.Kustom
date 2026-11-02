@@ -6,6 +6,8 @@ export default {
         'kustomHppSettingsContinueUrlDescription': 'The URL to continue to after this provider has done processing. eg: /continue/',
         'kustomHppSettingsCancelUrlLabel': 'Cancel URL',
         'kustomHppSettingsCancelUrlDescription': 'The URL to return to if the payment attempt is canceled. eg: /cancel/',
+        'kustomHppSettingsTermsUrlLabel': 'Terms URL',
+        'kustomHppSettingsTermsUrlDescription': 'The URL of your terms and conditions page, linked from the Kustom checkout. A relative URL is resolved against your site. Defaults to /terms',
         'kustomHppSettingsErrorUrlLabel': 'Error URL',
         'kustomHppSettingsErrorUrlDescription': 'The URL to return to if the payment attempt errors. eg: /error/',
 
