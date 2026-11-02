@@ -8,7 +8,7 @@ using Umbraco.Commerce.PaymentProviders.Kustom.Api.Models;
 namespace Umbraco.Commerce.PaymentProviders.Kustom.UnitTests
 {
     // Every KustomClient call is run against Flurl's HttpTest, so no request leaves the process.
-    public class KustomClientTests : IDisposable
+    public sealed class KustomClientTests : IDisposable
     {
         private readonly HttpTest _httpTest = new();
         private readonly KustomClient _client = new(new PlaygroundKustomClientConfig("user", "pass", KustomApiRegion.Europe));
