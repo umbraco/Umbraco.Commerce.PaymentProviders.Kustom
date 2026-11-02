@@ -17,6 +17,9 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom.UnitTests
         [InlineData(KustomOrder.Statuses.PART_CAPTURED, 10000, 10000, PaymentStatus.Refunded)]
         [InlineData(KustomOrder.Statuses.REFUNDED, 10000, 10000, PaymentStatus.Refunded)]
         [InlineData(KustomOrder.Statuses.AUTHORIZED, 0, 0, PaymentStatus.Authorized)]
+        [InlineData(KustomOrder.Statuses.CANCELLED, 0, 0, PaymentStatus.Cancelled)]
+        [InlineData(KustomOrder.Statuses.EXPIRED, 0, 0, PaymentStatus.Cancelled)]
+        [InlineData(KustomOrder.Statuses.CLOSED, 10000, 0, PaymentStatus.Error)]
         public void GetPaymentStatus_Should_Map_Captured_And_Refunded_Amounts(string kustomStatus, int capturedAmount, int refundedAmount, PaymentStatus expected)
         {
             // preparation
