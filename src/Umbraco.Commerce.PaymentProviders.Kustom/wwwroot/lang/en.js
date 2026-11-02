@@ -70,6 +70,7 @@ export default {
         'kustomHppSettingsEnableFallbacksDescription': 'Set whether to fallback to other payment options if the initial payment attempt fails before redirecting back to the site',
 
         'kustomHppMetaDataKustomSessionIdLabel': 'Kustom Session ID',
+        'kustomHppMetaDataKustomCheckoutOrderIdLabel': 'Kustom Checkout Order ID',
         'kustomHppMetaDataKustomOrderIdLabel': 'Kustom Order ID',
         'kustomHppMetaDataKustomReferenceLabel': 'Kustom Reference',
     },
