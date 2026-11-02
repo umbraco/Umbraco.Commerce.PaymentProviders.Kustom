@@ -29,4 +29,8 @@
     <ProjectReference Include="..\..\src\Umbraco.Commerce.PaymentProviders.Kustom\Umbraco.Commerce.PaymentProviders.Kustom.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\src\Umbraco.Commerce.PaymentProviders.Kustom\wwwroot\lang\en.js" Link="lang\en.js" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
