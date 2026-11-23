@@ -331,9 +331,10 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom
                 {
                     evt = await client.ParseSessionEventAsync(ctx.HttpContext.Request.Body, cancellationToken).ConfigureAwait(false);
                 }
-                catch (JsonException)
+                catch (JsonException ex)
                 {
                     // An empty or malformed body (e.g. a retry with no payload) falls through to the API lookup below
+                    logger.Debug("HPP status callback for order {OrderNumber} has a body that couldn't be parsed as a session event: {Message}", ctx.Order.OrderNumber, ex.Message);
                 }
 
                 if (evt?.Session?.Status == KustomSession.Statuses.COMPLETED)
