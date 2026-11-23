@@ -91,6 +91,31 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom.Api
             return JsonSerializer.Deserialize<KustomSessionEvent>(stream);
         }
 
+        /// <summary>
+        /// Asynchronously parses a session event from the given stream.
+        /// </summary>
+        /// <remarks>
+        /// Unlike <see cref="ParseSessionEvent(Stream)"/>, this overload only performs asynchronous
+        /// reads, which makes it safe to use directly with an ASP.NET Core request body stream. On
+        /// Kestrel/IIS with the default <c>AllowSynchronousIO = false</c>, the synchronous overload
+        /// throws <see cref="InvalidOperationException"/> ("Synchronous operations are disallowed"),
+        /// even when buffering is enabled, because the first read still comes from the server.
+        /// Like the synchronous overload, a seekable stream is rewound before it is read.
+        /// </remarks>
+        /// <param name="stream">The stream containing the serialized session event JSON.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public async Task<KustomSessionEvent?> ParseSessionEventAsync(Stream stream, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
+
+            return await JsonSerializer.DeserializeAsync<KustomSessionEvent>(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+
         private async Task<TResult> RequestAsync<TResult>(string url, Func<IFlurlRequest, CancellationToken, Task<TResult>> func, CancellationToken cancellationToken = default)
         {
             FlurlRequest req = new FlurlRequest(_config.BaseUrl + url)
