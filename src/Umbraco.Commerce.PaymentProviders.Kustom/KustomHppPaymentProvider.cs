@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -322,13 +323,23 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom
                 var client = new KustomClient(clientConfig);
 
                 // Try to parse the session event from the request body
-                using (Stream stream = ctx.HttpContext.Request.Body)
+                // Read the body asynchronously: the first read of a request body comes from
+                // the server, even when buffering is enabled, so a synchronous read throws
+                // "Synchronous operations are disallowed" on Kestrel/IIS.
+                KustomSessionEvent? evt = null;
+                try
                 {
-                    KustomSessionEvent evt = client.ParseSessionEvent(stream);
-                    if (evt?.Session?.Status == KustomSession.Statuses.COMPLETED)
-                    {
-                        return await GetCallbackResultFromOrderAsync(client, evt.Session.OrderId, evt.Session.KustomReference, cancellationToken).ConfigureAwait(false);
-                    }
+                    evt = await client.ParseSessionEventAsync(ctx.HttpContext.Request.Body, cancellationToken).ConfigureAwait(false);
+                }
+                catch (JsonException ex)
+                {
+                    // An empty or malformed body (e.g. a retry with no payload) falls through to the API lookup below
+                    logger.Debug("HPP status callback for order {OrderNumber} has a body that couldn't be parsed as a session event: {Message}", ctx.Order.OrderNumber, ex.Message);
+                }
+
+                if (evt?.Session?.Status == KustomSession.Statuses.COMPLETED)
+                {
+                    return await GetCallbackResultFromOrderAsync(client, evt.Session.OrderId, evt.Session.KustomReference, cancellationToken).ConfigureAwait(false);
                 }
 
                 // If body was empty or didn't contain a completed session (e.g. retry with empty payload),
