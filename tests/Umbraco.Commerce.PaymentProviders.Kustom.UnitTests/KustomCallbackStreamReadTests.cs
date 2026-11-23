@@ -89,5 +89,17 @@ namespace Umbraco.Commerce.PaymentProviders.Kustom.UnitTests
             deserialized.Should().NotBeNull();
             deserialized!.Session.Status.Should().Be("COMPLETED");
         }
+
+        [Fact]
+        public async Task ParseSessionEventAsync_EmptyStream_Should_Throw_JsonException()
+        {
+            // The callback catches JsonException to fall back to the checkout order API lookup on an empty retry body.
+            var client = new KustomClient(new TestClientConfig());
+            using var stream = new MemoryStream();
+
+            var act = () => client.ParseSessionEventAsync(stream);
+
+            await act.Should().ThrowAsync<System.Text.Json.JsonException>();
+        }
     }
 }
